@@ -210,7 +210,7 @@ typedef struct {
 /** The header of an atom:Event.  Note this type is NOT an LV2_Atom. */
 typedef struct {
 	/** Time stamp.  Which type is valid is determined by context. */
-	union {
+	union _bindgen_ty_1 {
 		int64_t frames;  /**< Time in audio frames. */
 		double  beats;   /**< Time in beats. */
 	} time;
