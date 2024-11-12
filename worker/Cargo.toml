@@ -10,6 +10,6 @@ readme = "README.md"
 repository = "https://github.com/RustAudio/rust-lv2"
 
 [dependencies]
-lv2-sys = "2.0.0"
-lv2-core = "3.0.0"
-urid = "0.1.0"
+lv2-sys = { path = "../sys" }
+lv2-core = { path = "../core" }
+urid = { path = "../urid", default-features = false }

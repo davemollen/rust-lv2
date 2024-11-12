@@ -1,7 +1,10 @@
 [package]
 name = "lv2-core"
 version = "3.0.0"
-authors = ["Janonard <jan.opdenhoevel@protonmail.com>", "Adrien Prokopowicz <adrien.prokopowicz@gmail.com>"]
+authors = [
+    "Janonard <jan.opdenhoevel@protonmail.com>",
+    "Adrien Prokopowicz <adrien.prokopowicz@gmail.com>",
+]
 edition = "2018"
 license = "MIT OR Apache-2.0"
 
@@ -14,6 +17,9 @@ travis-ci = { repository = "RustAudio/rust-lv2", branch = "master" }
 maintenance = { status = "passively-maintained" }
 
 [dependencies]
-urid = "0.1.0"
-lv2-sys = "2.0.0"
-lv2-core-derive = "2.1.0"
+urid = { path = "../urid", default-features = false }
+lv2-sys = { path = "../sys" }
+lv2-core-derive = { path = "derive", optional = true }
+
+[features]
+default = ["lv2-core-derive"]

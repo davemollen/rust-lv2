@@ -1,8 +1,11 @@
 [package]
 name = "lv2"
 version = "0.6.0"
-authors = ["Jan-Oliver 'Janonard' Opdenhövel <jan.opdenhoevel@protonmail.com>", "Adrien Prokopowicz <adrien.prokopowicz@gmail.com>",
- "Yruama_Lairba <yruama_lairba@hotmail.com>"]
+authors = [
+    "Jan-Oliver 'Janonard' Opdenhövel <jan.opdenhoevel@protonmail.com>",
+    "Adrien Prokopowicz <adrien.prokopowicz@gmail.com>",
+    "Yruama_Lairba <yruama_lairba@hotmail.com>",
+]
 edition = "2018"
 license = "MIT OR Apache-2.0"
 
@@ -16,51 +19,48 @@ travis-ci = { repository = "RustAudio/rust-lv2", branch = "master" }
 maintenance = { status = "actively-developed" }
 
 [dependencies.lv2-atom]
-version = "2.0.0"
+path = "atom"
 optional = true
 
 [dependencies.lv2-core]
-version = "3.0.0"
+path = "core"
 optional = true
 
 [dependencies.lv2-midi]
-version = "1.2.0"
+path = "midi"
 optional = true
 
 [dependencies.lv2-time]
-version = "0.1.3"
+path = "time"
 optional = true
 
 [dependencies.lv2-units]
-version = "0.1.3"
+path = "units"
 optional = true
 
 [dependencies.urid]
-version = "0.1.0"
+path = "urid"
 optional = true
 
 [dependencies.lv2-urid]
-version = "2.1.0"
+path = "urid/lv2-urid"
 optional = true
 
 [dependencies.lv2-state]
-version = "2.0.0"
+path = "state"
 optional = true
 
 [dependencies.lv2-sys]
-version = "2.0.0"
+path = "sys"
 optional = true
 
 [dependencies.lv2-worker]
-version = "0.1.1"
+path = "worker"
 optional = true
 
 [features]
 default = ["plugin"]
-minimal_plugin = [
-    "lv2-core",
-    "urid",
-]
+minimal_plugin = ["lv2-core", "urid"]
 plugin = [
     "minimal_plugin",
     "lv2-urid",
