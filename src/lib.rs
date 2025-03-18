@@ -151,7 +151,7 @@ pub mod prelude {
     #[cfg(feature = "lv2-urid")]
     pub use ::lv2_urid::*;
     #[cfg(feature = "lv2-worker")]
-    pub use ::lv2_worker::prelude::*;
+    pub use ::lv2_worker::*;
     #[cfg(feature = "urid")]
     pub use ::urid::*;
 }
