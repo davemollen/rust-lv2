@@ -145,7 +145,7 @@ pub mod prelude {
     #[cfg(feature = "lv2-midi")]
     pub use ::lv2_midi::prelude::*;
     #[cfg(feature = "lv2-patch")]
-    pub use ::lv2_patch::*;
+    pub use ::lv2_patch::prelude::*;
     #[cfg(feature = "lv2-state")]
     pub use ::lv2_state::*;
     #[cfg(feature = "lv2-time")]

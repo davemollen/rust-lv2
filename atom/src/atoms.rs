@@ -26,6 +26,7 @@ pub struct AtomURIDCollection {
     pub string: URID<string::String>,
     pub tuple: URID<tuple::Tuple>,
     pub sequence: URID<sequence::Sequence>,
+    pub path: URID<string::Path>,
 }
 
 impl URIDCollection for AtomURIDCollection {
@@ -46,6 +47,7 @@ impl URIDCollection for AtomURIDCollection {
             string: map.map_type()?,
             tuple: map.map_type()?,
             sequence: map.map_type()?,
+            path: map.map_type()?,
         })
     }
 }

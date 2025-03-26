@@ -10,9 +10,16 @@ use urid::*;
 
 /// Property storage handle.
 ///
-/// This handle can be used to store the properties of a plugin. It uses the atom system to encode the properties and is backed by a storage callback function.
+/// This handle can be used to store the properties of a plugin. It uses the
+/// atom system to encode the properties and is backed by a storage callback
+/// function.
 ///
-/// The written properties a buffered and flushed when requested. Create new properties by calling [`draft`](#method.draft) and write them like any other atom. Once you are done, you can commit your properties by calling [`commit_all`](#method.commit_all) or [`commit`](#method.commit). You have to commit manually: Uncommitted properties will be discarded when the handle is dropped.
+/// The written properties a buffered and flushed when requested. Create new
+/// properties by calling [`draft`](#method.draft) and write them like any other
+/// atom. Once you are done, you can commit your properties by calling
+/// [`commit_all`](#method.commit_all) or [`commit`](#method.commit). You have
+/// to commit manually: Uncommitted properties will be discarded when the handle
+/// is dropped.
 pub struct StoreHandle<'a> {
     properties: HashMap<URID, AlignedVec<AtomHeader>>,
     store_fn: sys::LV2_State_Store_Function,
@@ -33,9 +40,14 @@ impl<'a> StoreHandle<'a> {
 
     /// Draft a new property.
     ///
-    /// This will return a new handle to create a property. Once the property is completely written, you can commit it by calling [`commit`](#method.commit) or [`commit_all`](#method.commit_all). Then, and only then, it will be saved by the host.
+    /// This will return a new handle to create a property. Once the property is
+    /// completely written, you can commit it by calling
+    /// [`commit`](#method.commit) or [`commit_all`](#method.commit_all). Then,
+    /// and only then, it will be saved by the host.
     ///
-    /// If you began to write a property and don't want the written things to be stored, you can discard it with [`discard`](#method.discard) or [`discard_all`](#method.discard_all).
+    /// If you began to write a property and don't want the written things to be
+    /// stored, you can discard it with [`discard`](#method.discard) or
+    /// [`discard_all`](#method.discard_all).
     pub fn draft<K: ?Sized>(&mut self, property_key: URID<K>) -> StatePropertyWriter {
         let property_key = property_key.into_general();
         let space = self
@@ -79,7 +91,9 @@ impl<'a> StoreHandle<'a> {
 
     /// Commit one specific property.
     ///
-    /// This method returns `None` if the requested property was not marked for commit, `Some(Ok(()))` if the property was stored and `Some(Err(_))` if an error occurred while storing the property.
+    /// This method returns `None` if the requested property was not marked for
+    /// commit, `Some(Ok(()))` if the property was stored and `Some(Err(_))` if
+    /// an error occurred while storing the property.
     pub fn commit<K: ?Sized>(&mut self, key: URID<K>) -> Option<Result<(), StateErr>> {
         let key = key.into_general();
         let space = self.properties.remove(&key)?;
@@ -116,7 +130,11 @@ impl<'a> StatePropertyWriter<'a> {
 
     /// Initialize the property.
     ///
-    /// This works like any other atom writer: You have to provide the URID of the atom type you want to write, as well as the type-specific parameter. If the property hasn't been initialized before, it will be initialized and the writing handle is returned. Otherwise, `Err(StateErr::Unknown)` is returned.
+    /// This works like any other atom writer: You have to provide the URID of
+    /// the atom type you want to write, as well as the type-specific parameter.
+    /// If the property hasn't been initialized before, it will be initialized
+    /// and the writing handle is returned. Otherwise, `Err(StateErr::Unknown)`
+    /// is returned.
     pub fn init<A: Atom>(
         &'a mut self,
         urid: URID<A>,
@@ -138,7 +156,8 @@ pub struct RetrieveHandle<'a> {
 }
 
 impl<'a> RetrieveHandle<'a> {
-    /// Create a new retrieval handle that uses the given callback function and handle.
+    /// Create a new retrieval handle that uses the given callback function and
+    /// handle.
     pub fn new(
         retrieve_fn: sys::LV2_State_Retrieve_Function,
         handle: sys::LV2_State_Handle,
@@ -152,17 +171,21 @@ impl<'a> RetrieveHandle<'a> {
 
     /// Try to retrieve a property from the host.
     ///
-    /// This method calls the internal retrieve callback with the given URID. If there's no property with the given URID, `Err(StateErr::NoProperty)` is returned. Otherwise, a reading handle is returned that contains the type and the data of the property and can interpret it as an atom.
+    /// This method calls the internal retrieve callback with the given URID. If
+    /// there's no property with the given URID, `Err(StateErr::NoProperty)` is
+    /// returned. Otherwise, a reading handle is returned that contains the type
+    /// and the data of the property and can interpret it as an atom.
     pub fn retrieve<K: ?Sized>(&self, key: URID<K>) -> Result<StatePropertyReader, StateErr> {
         let mut size: usize = 0;
         let mut type_: u32 = 0;
+        let mut flags: u32 = 0;
         let property_ptr: *const std::ffi::c_void = unsafe {
             (self.retrieve_fn.ok_or(StateErr::BadCallback)?)(
                 self.handle,
                 key.get(),
                 &mut size,
                 &mut type_,
-                std::ptr::null_mut(),
+                &mut flags,
             )
         };
 
@@ -182,7 +205,8 @@ impl<'a> RetrieveHandle<'a> {
 
 /// Reading handle for properties.
 ///
-/// This handle contains the type and the data of a property retrieved from the [`RetrieveHandle`](struct.RetrieveHandle.html).
+/// This handle contains the type and the data of a property retrieved from the
+/// [`RetrieveHandle`](struct.RetrieveHandle.html).
 pub struct StatePropertyReader<'a> {
     type_: URID,
     body: &'a AtomSpace,
@@ -209,9 +233,12 @@ impl<'a> StatePropertyReader<'a> {
 
     /// Try to interpret the property as an atom.
     ///
-    /// This works like any atom reader: You pass the URID of the atom type as well as the type-specific argument, and if the desired type is the actual type of the data, a read handle is returned.
+    /// This works like any atom reader: You pass the URID of the atom type as
+    /// well as the type-specific argument, and if the desired type is the
+    /// actual type of the data, a read handle is returned.
     ///
-    /// If the desired and actual data types don't match, `Err(StateErr::BadType)` is returned.
+    /// If the desired and actual data types don't match,
+    /// `Err(StateErr::BadType)` is returned.
     pub fn read<A: Atom>(
         &self,
         urid: URID<A>,

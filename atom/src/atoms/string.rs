@@ -1,14 +1,21 @@
 //! String handling atoms.
 //!
-//! This module contains two different atoms: The [`String`](struct.String.html) and the [`Literal`](struct.Literal.html). The former is for simple, non-localized UTF-8 strings, like URIs or paths, and the later is either for localized text, e.g. descriptions in the user interface, or RDF literals.
+//! This module contains two different atoms: The [`String`](struct.String.html)
+//! and the [`Literal`](struct.Literal.html). The former is for simple,
+//! non-localized UTF-8 strings, like URIs or paths, and the later is either for
+//! localized text, e.g. descriptions in the user interface, or RDF literals.
 //!
-//! Reading and writing these atoms is pretty simple: They don't require a parameter and return a either a `&str` or the literal info and a `&str`. Writing is done with a writing handle which can append strings to the string/literal. When dropped, the handle will append the null character, you therefore don't have to handle it on your own.
+//! Reading and writing these atoms is pretty simple: They don't require a
+//! parameter and return a either a `&str` or the literal info and a `&str`.
+//! Writing is done with a writing handle which can append strings to the
+//! string/literal. When dropped, the handle will append the null character, you
+//! therefore don't have to handle it on your own.
 //!
 //! # Example
 //! ```
-//! use lv2_core::prelude::*;
-//! use lv2_atom::prelude::*;
 //! use lv2_atom::atoms::string::StringWriter;
+//! use lv2_atom::prelude::*;
+//! use lv2_core::prelude::*;
 //!
 //! #[derive(PortCollection)]
 //! struct MyPorts {
@@ -73,7 +80,8 @@ impl LiteralInfo {
     }
 }
 
-/// A type-state for the Literal Writer, that writes the info header of a literal.
+/// A type-state for the Literal Writer, that writes the info header of a
+/// literal.
 pub struct LiteralInfoWriter<'a> {
     writer: AtomWriter<'a>,
 }
@@ -83,8 +91,8 @@ impl<'a> LiteralInfoWriter<'a> {
     ///
     /// # Errors
     ///
-    /// This method will return an error if there is not enough space in the underlying buffer,
-    /// or if any other write error occurs.
+    /// This method will return an error if there is not enough space in the
+    /// underlying buffer, or if any other write error occurs.
     pub fn write_info(mut self, info: LiteralInfo) -> Result<StringWriter<'a>, AtomWriteError> {
         self.writer.write_value(info.into_raw())?;
 
@@ -195,6 +203,45 @@ impl Atom for String {
     }
 }
 
+pub struct Path;
+
+unsafe impl UriBound for Path {
+    const URI: &'static [u8] = sys::LV2_ATOM__Path;
+}
+
+impl Atom for Path {
+    type ReadHandle = StringReadHandle;
+    type WriteHandle = StringWriteHandle;
+
+    unsafe fn read(
+        body: &AtomSpace,
+    ) -> Result<<Self::ReadHandle as AtomHandle>::Handle, AtomReadError> {
+        let c_str = CStr::from_bytes_with_nul(body.as_bytes()).map_err(|_| {
+            AtomReadError::InvalidAtomValue {
+                reading_type_uri: Self::uri(),
+                error_message: "String value is not null-terminated",
+            }
+        })?;
+
+        let str = c_str
+            .to_str()
+            .map_err(|_| AtomReadError::InvalidAtomValue {
+                reading_type_uri: Self::uri(),
+                error_message: "String contents are invalid UTF-8",
+            })?;
+
+        Ok(str)
+    }
+
+    fn write(
+        frame: AtomWriter,
+    ) -> Result<<Self::WriteHandle as AtomHandle>::Handle, AtomWriteError> {
+        Ok(StringWriter {
+            writer: frame.terminated(0),
+        })
+    }
+}
+
 /// Handle to append strings to a string or literal.
 pub struct StringWriter<'a> {
     writer: Terminated<AtomWriter<'a>>,
@@ -203,17 +250,19 @@ pub struct StringWriter<'a> {
 impl<'a> StringWriter<'a> {
     /// Appends a string to the atom's buffer.
     ///
-    /// This method copies the given string to the end of the string atom, and then returns a
-    /// mutable reference to the copy.
+    /// This method copies the given string to the end of the string atom, and
+    /// then returns a mutable reference to the copy.
     ///
     /// # Errors
     ///
-    /// This method will return an error if there is not enough space in the underlying buffer for,
-    /// the given additional string, or if any other write error occurs.
+    /// This method will return an error if there is not enough space in the
+    /// underlying buffer for, the given additional string, or if any other
+    /// write error occurs.
     pub fn append(&mut self, string: &str) -> Result<&mut str, AtomWriteError> {
         let bytes = self.writer.write_bytes(string.as_bytes())?;
 
-        // SAFETY: We just wrote that string, therefore it is guaranteed to be valid UTF-8
+        // SAFETY: We just wrote that string, therefore it is guaranteed to be valid
+        // UTF-8
         unsafe { Ok(std::str::from_utf8_unchecked_mut(bytes)) }
     }
 }
