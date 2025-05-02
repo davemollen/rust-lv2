@@ -203,6 +203,45 @@ impl Atom for String {
     }
 }
 
+pub struct URI;
+
+unsafe impl UriBound for URI {
+    const URI: &'static [u8] = sys::LV2_ATOM__URI;
+}
+
+impl Atom for URI {
+    type ReadHandle = StringReadHandle;
+    type WriteHandle = StringWriteHandle;
+
+    unsafe fn read(
+        body: &AtomSpace,
+    ) -> Result<<Self::ReadHandle as AtomHandle>::Handle, AtomReadError> {
+        let c_str = CStr::from_bytes_with_nul(body.as_bytes()).map_err(|_| {
+            AtomReadError::InvalidAtomValue {
+                reading_type_uri: Self::uri(),
+                error_message: "String value is not null-terminated",
+            }
+        })?;
+
+        let str = c_str
+            .to_str()
+            .map_err(|_| AtomReadError::InvalidAtomValue {
+                reading_type_uri: Self::uri(),
+                error_message: "String contents are invalid UTF-8",
+            })?;
+
+        Ok(str)
+    }
+
+    fn write(
+        frame: AtomWriter,
+    ) -> Result<<Self::WriteHandle as AtomHandle>::Handle, AtomWriteError> {
+        Ok(StringWriter {
+            writer: frame.terminated(0),
+        })
+    }
+}
+
 pub struct Path;
 
 unsafe impl UriBound for Path {
@@ -386,6 +425,84 @@ mod tests {
             let string = unsafe { raw_space.read().next_atom() }
                 .unwrap()
                 .read(urids.string)
+                .unwrap();
+            assert_eq!(string, SAMPLE0.to_owned() + SAMPLE1);
+        }
+    }
+
+    #[test]
+    fn test_path() {
+        let map = HashURIDMapper::new();
+        let urids = crate::atoms::AtomURIDCollection::from_map(&map).unwrap();
+
+        let mut raw_space = AlignedVec::<AtomHeader>::new_with_capacity(64);
+        let raw_space = raw_space.as_space_mut();
+
+        // writing
+        {
+            let mut space = SpaceCursor::new(raw_space.as_bytes_mut());
+
+            let mut writer = space.write_atom(urids.path).unwrap();
+            writer.append(SAMPLE0).unwrap();
+            writer.append(SAMPLE1).unwrap();
+        }
+
+        // verifying
+        {
+            let mut reader = raw_space.read();
+            let string: &sys::LV2_Atom_String = unsafe { reader.next_value() }.unwrap();
+            assert_eq!(string.atom.type_, urids.path);
+            assert_eq!(string.atom.size as usize, SAMPLE0.len() + SAMPLE1.len() + 1);
+
+            let string =
+                std::str::from_utf8(reader.next_bytes(string.atom.size as usize).unwrap()).unwrap();
+            assert_eq!(string[..string.len() - 1], SAMPLE0.to_owned() + SAMPLE1);
+        }
+
+        // reading
+        {
+            let string = unsafe { raw_space.read().next_atom() }
+                .unwrap()
+                .read(urids.path)
+                .unwrap();
+            assert_eq!(string, SAMPLE0.to_owned() + SAMPLE1);
+        }
+    }
+
+    #[test]
+    fn test_uri() {
+        let map = HashURIDMapper::new();
+        let urids = crate::atoms::AtomURIDCollection::from_map(&map).unwrap();
+
+        let mut raw_space = AlignedVec::<AtomHeader>::new_with_capacity(64);
+        let raw_space = raw_space.as_space_mut();
+
+        // writing
+        {
+            let mut space = SpaceCursor::new(raw_space.as_bytes_mut());
+
+            let mut writer = space.write_atom(urids.uri).unwrap();
+            writer.append(SAMPLE0).unwrap();
+            writer.append(SAMPLE1).unwrap();
+        }
+
+        // verifying
+        {
+            let mut reader = raw_space.read();
+            let string: &sys::LV2_Atom_String = unsafe { reader.next_value() }.unwrap();
+            assert_eq!(string.atom.type_, urids.uri);
+            assert_eq!(string.atom.size as usize, SAMPLE0.len() + SAMPLE1.len() + 1);
+
+            let string =
+                std::str::from_utf8(reader.next_bytes(string.atom.size as usize).unwrap()).unwrap();
+            assert_eq!(string[..string.len() - 1], SAMPLE0.to_owned() + SAMPLE1);
+        }
+
+        // reading
+        {
+            let string = unsafe { raw_space.read().next_atom() }
+                .unwrap()
+                .read(urids.uri)
                 .unwrap();
             assert_eq!(string, SAMPLE0.to_owned() + SAMPLE1);
         }
