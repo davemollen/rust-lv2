@@ -119,6 +119,35 @@ where
     }
 }
 
+/// An atom containing a local file path.
+///
+/// [See also the module documentation.](index.html)
+pub struct Path;
+
+unsafe impl UriBound for Path {
+    const URI: &'static [u8] = sys::LV2_ATOM__Path;
+}
+
+impl<'a, 'b> Atom<'a, 'b> for Path
+where
+    'a: 'b,
+{
+    type ReadParameter = ();
+    type ReadHandle = &'a str;
+    type WriteParameter = ();
+    type WriteHandle = StringWriter<'a, 'b>;
+
+    fn read(body: Space<'a>, _: ()) -> Option<&'a str> {
+        body.data()
+            .and_then(|data| std::str::from_utf8(data).ok())
+            .map(|string| &string[..string.len() - 1]) // removing the null-terminator
+    }
+
+    fn init(frame: FramedMutSpace<'a, 'b>, _: ()) -> Option<StringWriter<'a, 'b>> {
+        Some(StringWriter { frame })
+    }
+}
+
 /// Handle to append strings to a string or literal.
 pub struct StringWriter<'a, 'b> {
     frame: FramedMutSpace<'a, 'b>,

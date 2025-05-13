@@ -165,13 +165,14 @@ impl<'a> RetrieveHandle<'a> {
     pub fn retrieve<K: ?Sized>(&self, key: URID<K>) -> Result<StatePropertyReader, StateErr> {
         let mut size: usize = 0;
         let mut type_: u32 = 0;
+        let mut flags: u32 = 0;
         let property_ptr: *const std::ffi::c_void = unsafe {
             (self.retrieve_fn.ok_or(StateErr::BadCallback)?)(
                 self.handle,
                 key.get(),
                 &mut size,
                 &mut type_,
-                std::ptr::null_mut(),
+                &mut flags,
             )
         };
 
