@@ -112,6 +112,7 @@ pub struct AtomURIDCollection {
     pub property: URID<object::Property>,
     pub string: URID<string::String>,
     pub path: URID<string::Path>,
+    pub uri: URID<string::URI>,
     pub tuple: URID<tuple::Tuple>,
     pub sequence: URID<sequence::Sequence>,
 }

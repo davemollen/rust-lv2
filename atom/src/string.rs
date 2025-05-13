@@ -148,6 +148,35 @@ where
     }
 }
 
+/// An atom containing a URI string.
+///
+/// [See also the module documentation.](index.html)
+pub struct URI;
+
+unsafe impl UriBound for URI {
+    const URI: &'static [u8] = sys::LV2_ATOM__URI;
+}
+
+impl<'a, 'b> Atom<'a, 'b> for URI
+where
+    'a: 'b,
+{
+    type ReadParameter = ();
+    type ReadHandle = &'a str;
+    type WriteParameter = ();
+    type WriteHandle = StringWriter<'a, 'b>;
+
+    fn read(body: Space<'a>, _: ()) -> Option<&'a str> {
+        body.data()
+            .and_then(|data| std::str::from_utf8(data).ok())
+            .map(|string| &string[..string.len() - 1]) // removing the null-terminator
+    }
+
+    fn init(frame: FramedMutSpace<'a, 'b>, _: ()) -> Option<StringWriter<'a, 'b>> {
+        Some(StringWriter { frame })
+    }
+}
+
 /// Handle to append strings to a string or literal.
 pub struct StringWriter<'a, 'b> {
     frame: FramedMutSpace<'a, 'b>,
@@ -283,6 +312,82 @@ mod tests {
         {
             let space = Space::from_slice(raw_space.as_ref());
             let (body, _) = space.split_atom_body(urids.string).unwrap();
+            let string = String::read(body, ()).unwrap();
+            assert_eq!(string, SAMPLE0.to_owned() + SAMPLE1);
+        }
+    }
+
+    #[test]
+    fn test_path() {
+        let map = HashURIDMapper::new();
+        let urids = crate::AtomURIDCollection::from_map(&map).unwrap();
+
+        let mut raw_space: Box<[u8]> = Box::new([0; 256]);
+
+        // writing
+        {
+            let mut space = RootMutSpace::new(raw_space.as_mut());
+            let mut writer = (&mut space as &mut dyn MutSpace)
+                .init(urids.path, ())
+                .unwrap();
+            writer.append(SAMPLE0).unwrap();
+            writer.append(SAMPLE1).unwrap();
+        }
+
+        // verifying
+        {
+            let (string, space) = raw_space.split_at(size_of::<sys::LV2_Atom_String>());
+
+            let string = unsafe { &*(string.as_ptr() as *const sys::LV2_Atom_String) };
+            assert_eq!(string.atom.type_, urids.path);
+            assert_eq!(string.atom.size as usize, SAMPLE0.len() + SAMPLE1.len() + 1);
+
+            let string = std::str::from_utf8(space.split_at(string.atom.size as usize).0).unwrap();
+            assert_eq!(string[..string.len() - 1], SAMPLE0.to_owned() + SAMPLE1);
+        }
+
+        // reading
+        {
+            let space = Space::from_slice(raw_space.as_ref());
+            let (body, _) = space.split_atom_body(urids.path).unwrap();
+            let string = String::read(body, ()).unwrap();
+            assert_eq!(string, SAMPLE0.to_owned() + SAMPLE1);
+        }
+    }
+
+    #[test]
+    fn test_uri() {
+        let map = HashURIDMapper::new();
+        let urids = crate::AtomURIDCollection::from_map(&map).unwrap();
+
+        let mut raw_space: Box<[u8]> = Box::new([0; 256]);
+
+        // writing
+        {
+            let mut space = RootMutSpace::new(raw_space.as_mut());
+            let mut writer = (&mut space as &mut dyn MutSpace)
+                .init(urids.uri, ())
+                .unwrap();
+            writer.append(SAMPLE0).unwrap();
+            writer.append(SAMPLE1).unwrap();
+        }
+
+        // verifying
+        {
+            let (string, space) = raw_space.split_at(size_of::<sys::LV2_Atom_String>());
+
+            let string = unsafe { &*(string.as_ptr() as *const sys::LV2_Atom_String) };
+            assert_eq!(string.atom.type_, urids.uri);
+            assert_eq!(string.atom.size as usize, SAMPLE0.len() + SAMPLE1.len() + 1);
+
+            let string = std::str::from_utf8(space.split_at(string.atom.size as usize).0).unwrap();
+            assert_eq!(string[..string.len() - 1], SAMPLE0.to_owned() + SAMPLE1);
+        }
+
+        // reading
+        {
+            let space = Space::from_slice(raw_space.as_ref());
+            let (body, _) = space.split_atom_body(urids.uri).unwrap();
             let string = String::read(body, ()).unwrap();
             assert_eq!(string, SAMPLE0.to_owned() + SAMPLE1);
         }
