@@ -140,8 +140,12 @@ pub mod prelude {
     pub use ::lv2_atom::prelude::*;
     #[cfg(feature = "lv2-core")]
     pub use ::lv2_core::prelude::*;
+    #[cfg(feature = "lv2-log")]
+    pub use ::lv2_log::*;
     #[cfg(feature = "lv2-midi")]
     pub use ::lv2_midi::prelude::*;
+    #[cfg(feature = "lv2-patch")]
+    pub use ::lv2_patch::*;
     #[cfg(feature = "lv2-state")]
     pub use ::lv2_state::*;
     #[cfg(feature = "lv2-time")]
@@ -162,8 +166,14 @@ pub extern crate lv2_atom;
 #[cfg(feature = "lv2-core")]
 pub extern crate lv2_core;
 
+#[cfg(feature = "lv2-log")]
+pub extern crate lv2_log;
+
 #[cfg(feature = "lv2-midi")]
 pub extern crate lv2_midi;
+
+#[cfg(feature = "lv2-patch")]
+pub extern crate lv2_patch;
 
 #[cfg(feature = "lv2-state")]
 pub extern crate lv2_state;

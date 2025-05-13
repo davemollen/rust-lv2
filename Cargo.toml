@@ -1,6 +1,6 @@
 [package]
 name = "lv2"
-version = "0.6.0"
+version = "0.6.1"
 authors = [
     "Jan-Oliver 'Janonard' Opdenhövel <jan.opdenhoevel@protonmail.com>",
     "Adrien Prokopowicz <adrien.prokopowicz@gmail.com>",
@@ -26,8 +26,16 @@ optional = true
 path = "core"
 optional = true
 
+[dependencies.lv2-log]
+path = "log"
+optional = true
+
 [dependencies.lv2-midi]
 path = "midi"
+optional = true
+
+[dependencies.lv2-patch]
+path = "patch"
 optional = true
 
 [dependencies.lv2-time]
@@ -63,6 +71,8 @@ default = ["plugin"]
 minimal_plugin = ["lv2-core", "urid"]
 plugin = [
     "minimal_plugin",
+    "lv2-log",
+    "lv2-patch",
     "lv2-urid",
     "lv2-units",
     "lv2-atom",
@@ -72,7 +82,9 @@ plugin = [
 full = [
     "lv2-atom",
     "lv2-core",
+    "lv2-log",
     "lv2-midi",
+    "lv2-patch",
     "lv2-time",
     "lv2-units",
     "urid",
@@ -88,7 +100,9 @@ members = [
     "atom",
     "core",
     "core/derive",
+    "log",
     "midi",
+    "patch",
     "state",
     "sys",
     "sys/tool",
@@ -112,7 +126,9 @@ lv2 = { path = "." }
 lv2-atom = { path = "atom" }
 lv2-core = { path = "core" }
 lv2-core-derive = { path = "core/derive" }
+lv2-log = { path = "log" }
 lv2-midi = { path = "midi" }
+lv2-patch = { path = "patch" }
 lv2-state = { path = "state" }
 lv2-sys = { path = "sys" }
 lv2-time = { path = "time" }
