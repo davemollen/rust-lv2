@@ -424,6 +424,19 @@ impl<'a> PathManager<'a> {
         Ok((absolute_path, abstract_path))
     }
 
+    /// Map an absolute file path back to an abstract one.
+    ///
+    /// To save the file path to state you have to map the absolute file path
+    /// back to an abstract path. This is what this method does.
+    pub fn abstract_path(&mut self, path: &Path) -> Result<ManagedStr<'a>, StateErr> {
+        self.map
+            .absolute_to_abstract_path(path)
+            .map(|path_str| ManagedStr {
+                str: path_str,
+                free_path: self.free.clone(),
+            })
+    }
+
     /// Map an abstract file path back to an absolute one.
     ///
     /// After reading an abstract file path from the state, you have to map it back to an absolute file path in order to read the file. This is what this method does.
