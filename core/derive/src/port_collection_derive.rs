@@ -20,11 +20,11 @@ impl<'a> PortCollectionField<'a> {
     }
 
     /// Create the field initialization line for the implementing struct.
-    fn make_connection_from_raw(&self) -> impl ::quote::ToTokens {
+    fn make_connection_from_raw(&self, index: u32) -> impl ::quote::ToTokens {
         let identifier = self.identifier;
         let port_type = self.port_type;
         quote! {
-            #identifier: <#port_type as PortHandle>::from_raw(connections.#identifier, sample_count)?,
+            #identifier: <#port_type as PortHandle>::from_raw(connections.#identifier, sample_count, #index)?,
         }
     }
 
@@ -98,7 +98,8 @@ impl<'a> PortCollectionStruct<'a> {
         let connections_from_raw = self
             .fields
             .iter()
-            .map(PortCollectionField::make_connection_from_raw);
+            .enumerate()
+            .map(|(i, field)| field.make_connection_from_raw(i as u32));
         let raw_field_declarations = self
             .fields
             .iter()

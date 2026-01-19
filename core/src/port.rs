@@ -52,7 +52,10 @@ pub trait PortHandle: Sized {
     /// # Safety
     ///
     /// Implementing this method requires a de-referentation of a raw pointer and therefore, it is unsafe.
-    unsafe fn from_raw(pointer: *mut c_void, sample_count: u32) -> Option<Self>;
+    unsafe fn from_raw(pointer: *mut c_void, sample_count: u32, index: u32) -> Option<Self>;
+
+    /// Get the index of the port.
+    fn get_index(&self) -> u32;
 }
 
 /// Handle for input ports.
@@ -60,6 +63,7 @@ pub trait PortHandle: Sized {
 /// Fields of this type can be dereferenced to the input type of the port type.
 pub struct InputPort<T: PortType> {
     port: T::InputPortType,
+    index: u32,
 }
 
 impl<T: PortType> Deref for InputPort<T> {
@@ -73,10 +77,15 @@ impl<T: PortType> Deref for InputPort<T> {
 
 impl<T: PortType> PortHandle for InputPort<T> {
     #[inline]
-    unsafe fn from_raw(pointer: *mut c_void, sample_count: u32) -> Option<Self> {
+    unsafe fn from_raw(pointer: *mut c_void, sample_count: u32, index: u32) -> Option<Self> {
         Some(Self {
             port: T::input_from_raw(NonNull::new(pointer)?, sample_count),
+            index,
         })
+    }
+
+    fn get_index(&self) -> u32 {
+        self.index
     }
 }
 
@@ -85,6 +94,7 @@ impl<T: PortType> PortHandle for InputPort<T> {
 /// Fields of this type can be dereferenced to the output type of the port type.
 pub struct OutputPort<T: PortType> {
     port: T::OutputPortType,
+    index: u32,
 }
 
 impl<T: PortType> Deref for OutputPort<T> {
@@ -105,16 +115,28 @@ impl<T: PortType> DerefMut for OutputPort<T> {
 
 impl<T: PortType> PortHandle for OutputPort<T> {
     #[inline]
-    unsafe fn from_raw(pointer: *mut c_void, sample_count: u32) -> Option<Self> {
+    unsafe fn from_raw(pointer: *mut c_void, sample_count: u32, index: u32) -> Option<Self> {
         Some(Self {
             port: T::output_from_raw(NonNull::new(pointer)?, sample_count),
+            index,
         })
+    }
+
+    fn get_index(&self) -> u32 {
+        self.index
     }
 }
 
 impl<T: PortHandle> PortHandle for Option<T> {
-    unsafe fn from_raw(pointer: *mut c_void, sample_count: u32) -> Option<Self> {
-        Some(T::from_raw(pointer, sample_count))
+    unsafe fn from_raw(pointer: *mut c_void, sample_count: u32, index: u32) -> Option<Self> {
+        Some(T::from_raw(pointer, sample_count, index))
+    }
+
+    fn get_index(&self) -> u32 {
+        match self {
+            Some(port) => port.get_index(),
+            None => 0,
+        }
     }
 }
 

@@ -136,6 +136,8 @@
 
 /// The super-prelude that contains the preludes of all enabled crates.
 pub mod prelude {
+    #[cfg(feature = "control_port_state_update")]
+    pub use ::control_port_state_update::*;
     #[cfg(feature = "lv2-atom")]
     pub use ::lv2_atom::prelude::*;
     #[cfg(feature = "lv2-core")]
@@ -160,6 +162,9 @@ pub mod prelude {
     #[cfg(feature = "urid")]
     pub use ::urid::*;
 }
+
+#[cfg(feature = "control_port_state_update")]
+pub extern crate control_port_state_update;
 
 #[cfg(feature = "lv2-atom")]
 pub extern crate lv2_atom;

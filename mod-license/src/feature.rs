@@ -2,7 +2,7 @@ use lv2_core::{feature::Feature, prelude::ThreadingClass};
 use std::ffi::{c_void, CStr};
 use urid::*;
 
-/// Feature allowing to manage MOD Audio license
+/// Feature for info about the MOD Audio plugin license
 #[repr(transparent)]
 pub struct ModLicense<'a> {
     internal: &'a lv2_sys::MOD_License_Feature,

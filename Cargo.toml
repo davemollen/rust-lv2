@@ -26,6 +26,10 @@ optional = true
 path = "core"
 optional = true
 
+[dependencies.control-port-state-update]
+path = "control-port-state-update"
+optional = true
+
 [dependencies.lv2-log]
 path = "log"
 optional = true
@@ -98,12 +102,14 @@ full = [
 ]
 wmidi = ["lv2-midi", "lv2-midi/wmidi"]
 mod_license = ["mod-license/mod_license", "lv2-core/mod_license"]
+control_port_state_update = ["control-port-state-update"]
 
 [workspace]
 members = [
     "atom",
     "core",
     "core/derive",
+    "control-port-state-update",
     "log",
     "midi",
     "mod-license",
@@ -127,6 +133,7 @@ members = [
 lto = true
 
 [patch.crates-io]
+control-port-state-update = { path = "control-port-state-update" }
 lv2 = { path = "." }
 lv2-atom = { path = "atom" }
 lv2-core = { path = "core" }
