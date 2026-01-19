@@ -156,6 +156,7 @@ pub mod prelude {
     pub use ::lv2_urid::*;
     #[cfg(feature = "lv2-worker")]
     pub use ::lv2_worker::*;
+    pub use ::mod_license::*;
     #[cfg(feature = "urid")]
     pub use ::urid::*;
 }
@@ -183,6 +184,8 @@ pub extern crate lv2_sys;
 
 #[cfg(feature = "lv2-time")]
 pub extern crate lv2_time;
+
+pub extern crate mod_license;
 
 #[cfg(feature = "urid")]
 pub extern crate urid;

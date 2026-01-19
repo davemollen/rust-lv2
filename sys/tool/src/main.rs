@@ -14,6 +14,8 @@ where
         .whitelist_type("LV2.*")
         .whitelist_function("LV2.*")
         .whitelist_var("LV2.*")
+        .whitelist_type("MOD.*")
+        .whitelist_function("mod_license_.*")
         .layout_tests(false)
         .bitfield_enum("LV2_State_Flags");
     bindings = bindings.clang_args(clang_args);
@@ -24,7 +26,8 @@ where
     include_path.pop();
     bindings = bindings.clang_arg(format!("-I{}", include_path.to_str().unwrap()));
 
-    // Iterate over every folder and header file in the source dir and add them to the bindings.
+    // Iterate over every folder and header file in the source dir and add them to
+    // the bindings.
     let mut dirs: Vec<PathBuf> = fs::read_dir(source_dir)
         .unwrap()
         .map(|entry| entry.unwrap().path())
@@ -93,7 +96,7 @@ fn main() {
 
     let headers = PathBuf::from(".").join(matches.value_of("LV2").unwrap());
     let out = PathBuf::from(".").join(matches.value_of("out").unwrap());
-    let clang_args = matches.values_of("clang args").unwrap();
+    let clang_args = matches.values_of("clang args").unwrap_or_default();
 
     generate_bindings(&headers, &out, clang_args);
 }

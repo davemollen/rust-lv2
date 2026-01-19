@@ -1,0 +1,14 @@
+[package]
+name = "mod-license"
+version = "0.1.0"
+authors = ["Dave Mollen <davemollen@gmail.com>"]
+edition = "2021"
+
+[features]
+default = []
+mod_license = []
+
+[dependencies]
+lv2-sys = { path = "../sys" }
+lv2-core = { path = "../core" }
+urid = { path = "../urid", default-features = false }

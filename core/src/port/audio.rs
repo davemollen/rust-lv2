@@ -1,4 +1,4 @@
-use crate::port::PortType;
+use crate::port::{OutputPort, PortType};
 use std::cell::Cell;
 use std::ffi::c_void;
 use std::ptr::NonNull;
@@ -151,5 +151,21 @@ impl PortType for InPlaceAudio {
             sample_count as usize,
         ))
         .as_slice_of_cells()
+    }
+}
+
+pub trait AudioOutputBuffer {
+    fn as_mut_ptr(&self) -> *mut f32;
+}
+
+impl AudioOutputBuffer for OutputPort<Audio> {
+    fn as_mut_ptr(&self) -> *mut f32 {
+        self.as_ptr().cast::<f32>() as *mut f32
+    }
+}
+
+impl AudioOutputBuffer for OutputPort<InPlaceAudio> {
+    fn as_mut_ptr(&self) -> *mut f32 {
+        self.as_ptr().cast::<f32>() as *mut f32
     }
 }

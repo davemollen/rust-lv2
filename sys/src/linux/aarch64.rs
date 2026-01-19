@@ -683,7 +683,7 @@ pub type __uint8_t = ::std::os::raw::c_uchar;
 pub type __uint16_t = ::std::os::raw::c_ushort;
 pub type __int32_t = ::std::os::raw::c_int;
 pub type __uint32_t = ::std::os::raw::c_uint;
-pub type __int64_t = ::std::os::raw::c_long;
+pub type __int64_t = ::std::os::raw::c_longlong;
 #[doc = " The header of an atom:Atom."]
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
@@ -1709,6 +1709,142 @@ pub const LV2_Midi_Controller_LV2_MIDI_CTL_MONO1: LV2_Midi_Controller = 126;
 pub const LV2_Midi_Controller_LV2_MIDI_CTL_MONO2: LV2_Midi_Controller = 127;
 #[doc = "Standard MIDI Controller Numbers."]
 pub type LV2_Midi_Controller = u32;
+#[doc = "< Plugin is licensed."]
+pub const MOD_License_Status_MOD_LICENSE_SUCCESS: MOD_License_Status = 0;
+#[doc = "< Unknown error."]
+pub const MOD_License_Status_MOD_LICENSE_ERR_UNKNOWN: MOD_License_Status = 1;
+#[doc = "< Plugin is not licensed - will run in restricted/demo mode."]
+pub const MOD_License_Status_MOD_LICENSE_ERR_UNLICENSED: MOD_License_Status = 2;
+#[doc = "< Plugin does not support this license API."]
+pub const MOD_License_Status_MOD_LICENSE_ERR_UNSUPPORTED: MOD_License_Status = 3;
+#[doc = "Status code for license functions."]
+pub type MOD_License_Status = u32;
+#[doc = "MOD License Interface."]
+#[doc = ""]
+#[doc = "When the plugin's extension_data is called with argument"]
+#[doc = "MOD_LICENSE__interface, the plugin MUST return an MOD_License_Interface"]
+#[doc = "structure, which remains valid for the lifetime of the plugin."]
+#[doc = ""]
+#[doc = "The host can use the contained function pointers to query information about"]
+#[doc = "a plugin's license. This can be used by the host to provide information to"]
+#[doc = "the GUI (e.g. display name of licensee)."]
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct _MOD_License_Interface {
+    #[doc = "Get the current license status for a plugin instance."]
+    #[doc = ""]
+    #[doc = "@see MOD_License_Status"]
+    #[doc = ""]
+    #[doc = "@param instance The LV2 instance this is a method on."]
+    pub status:
+        ::std::option::Option<unsafe extern "C" fn(instance: LV2_Handle) -> ::std::os::raw::c_int>,
+    #[doc = "Get the name of the licensee for a plugin instance."]
+    #[doc = "The caller is responsible for freeing the returned value with free()."]
+    #[doc = ""]
+    #[doc = "@param instance The LV2 instance this is a method on."]
+    pub licensee: ::std::option::Option<
+        unsafe extern "C" fn(instance: LV2_Handle) -> *mut ::std::os::raw::c_char,
+    >,
+}
+#[doc = "MOD License Interface."]
+#[doc = ""]
+#[doc = "When the plugin's extension_data is called with argument"]
+#[doc = "MOD_LICENSE__interface, the plugin MUST return an MOD_License_Interface"]
+#[doc = "structure, which remains valid for the lifetime of the plugin."]
+#[doc = ""]
+#[doc = "The host can use the contained function pointers to query information about"]
+#[doc = "a plugin's license. This can be used by the host to provide information to"]
+#[doc = "the GUI (e.g. display name of licensee)."]
+pub type MOD_License_Interface = _MOD_License_Interface;
+#[doc = "Opaque pointer to host data for MOD_License_Feature."]
+pub type MOD_License_Handle = *mut ::std::os::raw::c_void;
+#[doc = "MOD License Feature (MOD_LICENSE__feature)"]
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct _MOD_License_Feature {
+    #[doc = "Opaque pointer to host data."]
+    #[doc = ""]
+    #[doc = "This MUST be passed to license() and free() whenever they are called."]
+    #[doc = "Otherwise, it must not be interpreted in any way."]
+    pub handle: MOD_License_Handle,
+    #[doc = "Ask the host about a license file for a specific uri"]
+    #[doc = "(can be the plugin uri or a collection)."]
+    #[doc = ""]
+    #[doc = "The host will return the contents of the file, signed and encrypted,"]
+    #[doc = "or NULL if no license exists."]
+    #[doc = ""]
+    #[doc = "The plugin must call free() on the returned data."]
+    #[doc = ""]
+    #[doc = "@param handle Must be the handle member of this struct."]
+    #[doc = "@param license_uri The uri for which to ask a license for."]
+    pub license: ::std::option::Option<
+        unsafe extern "C" fn(
+            handle: MOD_License_Handle,
+            license_uri: *const ::std::os::raw::c_char,
+        ) -> *mut ::std::os::raw::c_char,
+    >,
+    #[doc = "Free the returned data of a license() call."]
+    #[doc = ""]
+    #[doc = "@param license The data to be freed."]
+    pub free: ::std::option::Option<
+        unsafe extern "C" fn(handle: MOD_License_Handle, license: *mut ::std::os::raw::c_char),
+    >,
+}
+#[doc = "MOD License Feature (MOD_LICENSE__feature)"]
+pub type MOD_License_Feature = _MOD_License_Feature;
+extern "C" {
+    #[doc = " Check license file for a specific uri (plugin or collection)."]
+    #[doc = ""]
+    #[doc = " Must be called at instantiate(), one time for each license uri."]
+    #[doc = ""]
+    #[doc = " Returns true if a valid license was found or host doesn't support licensing API."]
+    #[doc = " (so that you can stop checking for other license uris)"]
+    pub fn mod_license_check(
+        features: *const *const LV2_Feature,
+        license_uri: *const ::std::os::raw::c_char,
+    ) -> bool;
+}
+extern "C" {
+    #[doc = " Begin time calculations for unlicensed silence."]
+    #[doc = ""]
+    #[doc = " Must be called at the beginning of each run()."]
+    #[doc = " This counts samples (time) to later decide if silence needs to be injected."]
+    #[doc = ""]
+    #[doc = " Returned value must be stored in the local 'run_count'."]
+    pub fn mod_license_run_begin(run_count: u32, n_samples: u32) -> u32;
+}
+extern "C" {
+    #[doc = " DEPRECATED"]
+    #[doc = ""]
+    #[doc = " Before version 1.2 we used noise. We changed it, because even noise"]
+    #[doc = " at low levels can grow to maximum level through the signal"]
+    #[doc = " chain. This may damage speakers and hearing."]
+    #[doc = ""]
+    #[doc = " We keep the function signature to not break compilation, since"]
+    #[doc = " programmers happen to fork e.g. old versions of DPF which make use"]
+    #[doc = " of `mod_license_run_noise`."]
+    pub fn mod_license_run_noise(run_count: u32, buf: *mut f32, n_samples: u32, chn: u32);
+}
+extern "C" {
+    #[doc = " Inject silence into output buffers if unlicensed."]
+    #[doc = ""]
+    #[doc = " Must be called at the end of each run(), for all audio output buffers."]
+    #[doc = " Call this function on each buffer, using @a chn to specify the index offset."]
+    pub fn mod_license_run_silence(run_count: u32, buf: *mut f32, n_samples: u32, chn: u32);
+}
+extern "C" {
+    #[doc = " Get the LV2 interface for the MOD license API."]
+    #[doc = ""]
+    #[doc = " Must be called at the end of your lv2 plugin extension_data."]
+    pub fn mod_license_interface(
+        uri: *const ::std::os::raw::c_char,
+    ) -> *const ::std::os::raw::c_void;
+}
+extern "C" {
+    #[doc = " Return the version of modla library."]
+    #[doc = ""]
+    pub fn mod_license_version() -> *const ::std::os::raw::c_char;
+}
 #[doc = "This option applies to the instance itself.  The subject must be"]
 #[doc = "ignored."]
 pub const LV2_Options_Context_LV2_OPTIONS_INSTANCE: LV2_Options_Context = 0;

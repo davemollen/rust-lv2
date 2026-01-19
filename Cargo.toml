@@ -46,6 +46,9 @@ optional = true
 path = "units"
 optional = true
 
+[dependencies.mod-license]
+path = "mod-license"
+
 [dependencies.urid]
 path = "urid"
 optional = true
@@ -94,6 +97,7 @@ full = [
     "lv2-worker",
 ]
 wmidi = ["lv2-midi", "lv2-midi/wmidi"]
+mod_license = ["mod-license/mod_license", "lv2-core/mod_license"]
 
 [workspace]
 members = [
@@ -102,6 +106,7 @@ members = [
     "core/derive",
     "log",
     "midi",
+    "mod-license",
     "patch",
     "state",
     "sys",
@@ -133,6 +138,7 @@ lv2-state = { path = "state" }
 lv2-sys = { path = "sys" }
 lv2-time = { path = "time" }
 lv2-units = { path = "units" }
+mod-license = { path = "mod-license" }
 urid = { path = "urid" }
 urid-derive = { path = "urid/derive" }
 lv2-urid = { path = "urid/lv2-urid" }
