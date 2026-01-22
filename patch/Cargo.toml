@@ -4,8 +4,12 @@ version = "0.1.0"
 authors = ["Dave Mollen <davemollen@gmail.com>"]
 edition = "2021"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
 [dependencies]
 lv2-sys = { path = "../sys" }
 urid = { path = "../urid" }
+
+[dev-dependencies]
+lv2-atom = { path = "../atom" }
+lv2-core = { path = "../core" }
+lv2-units = { path = "../units" }
+lv2-urid = { path = "../urid/lv2-urid" }

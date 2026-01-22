@@ -1,15 +1,129 @@
-//! LV2 specification for patch, a protocol for accessing and manipulating
-//! properties.
+//! LV2 specification for patch, a protocol for accessing and manipulating properties.
 //!
 //! The original [specification](https://lv2plug.in/ns/ext/patch) contains means to access and manipulate properties with messages.
-extern crate lv2_sys as sys;
+//!
+//! # Example
+//! ```
+//! use lv2_atom::prelude::*;
+//! use lv2_core::prelude::*;
+//! use lv2_patch::*;
+//! use lv2_units::prelude::*;
+//! use lv2_urid::LV2Map;
+//! use urid::*;
+//! use std::string::String;
+//!
+//! #[derive(PortCollection)]
+//! struct Ports {
+//!   control: InputPort<AtomPort>,
+//!   notify: OutputPort<AtomPort>,
+//! }
+//!
+//! #[derive(FeatureCollection)]
+//! struct InitFeatures<'a> {
+//!   map: LV2Map<'a>,
+//! }
+//!
+//! #[uri("http://lv2plug.in/plugins.rs/patch_example#sample")]
+//! struct Sample;
+//!
+//! #[derive(URIDCollection)]
+//! struct URIDs {
+//!   atom: AtomURIDCollection,
+//!   unit: UnitURIDCollection,
+//!   patch: PatchURIDCollection,
+//!   sample: URID<Sample>,
+//! }
+//!
+//! #[uri("http://lv2plug.in/plugins.rs/patch_example")]
+//! struct PatchExample {
+//!   urids: URIDs,
+//!   file_path: String,
+//! }
+//!
+//! impl Plugin for PatchExample {
+//!   type Ports = Ports;
+//!   type InitFeatures = InitFeatures<'static>;
+//!   type AudioFeatures = ();
+//!
+//!   fn new(_plugin_info: &PluginInfo, features: &mut Self::InitFeatures) -> Option<Self> {
+//!     Some(Self {
+//!       urids: features.map.populate_collection()?,
+//!       file_path: "".to_string(),
+//!     })
+//!   }
+//!
+//!   fn run(&mut self, ports: &mut Ports, _features: &mut Self::AudioFeatures, _sample_count: u32) {
+//!     let control_sequence = match ports
+//!       .control
+//!       .read(self.urids.atom.sequence, self.urids.unit.beat)
+//!     {
+//!       Some(sequence_iter) => sequence_iter,
+//!       None => return,
+//!     };
+//!
+//!     for (time_stamp, atom) in control_sequence {
+//!       // Handle patch get events
+//!       let (object_header, object_reader) = match atom.read(self.urids.atom.object, ()) {
+//!         Some(object) => object,
+//!         None => return,
+//!       };
+//!
+//!       if object_header.otype == self.urids.patch.get_class {
+//!         let mut notify_sequence = match ports.notify.init(
+//!           self.urids.atom.sequence,
+//!           TimeStampURID::Frames(self.urids.unit.frame),
+//!         ) {
+//!           Some(sequence_iter) => sequence_iter,
+//!           None => return,
+//!         };
+//!
+//!         let mut object_writer = notify_sequence
+//!           .init(
+//!             TimeStamp::Frames(time_stamp.as_frames().unwrap_or(0)),
+//!             self.urids.atom.object,
+//!             ObjectHeader {
+//!               id: None,
+//!               otype: self.urids.patch.set_class.into_general(),
+//!             },
+//!           )
+//!           .unwrap();
+//!         object_writer
+//!           .init(
+//!             self.urids.patch.property,
+//!             self.urids.atom.urid,
+//!             self.urids.sample.into_general(),
+//!           )
+//!           .unwrap();
+//!         let mut path_value_writer = object_writer
+//!           .init(self.urids.patch.value, self.urids.atom.path, ())
+//!           .unwrap();
+//!         path_value_writer.append(&self.file_path).unwrap();
+//!       }
+//!
+//!       // Handle patch set events
+//!       if object_header.otype == self.urids.patch.set_class {
+//!         for (property_header, property) in object_reader {
+//!           if property_header.key == self.urids.patch.value {
+//!             self.file_path = property
+//!               .read(self.urids.atom.path, ())
+//!               .map(|path| path.to_string())
+//!               .unwrap();
+//!           }
+//!         }
+//!       };
+//!     }
+//!   }
+//! }
+//!
+//! lv2_descriptors!(PatchExample);
+//! ```
 
+extern crate lv2_sys as sys;
 use urid::*;
 
-/// All patch URI bounds
+/// All patch URI bounds.
 ///
-/// All Struct suffixed by `Class` are patch Classes, others are patch
-/// properties.
+/// All Struct suffixed by `Class` are patch Classes, others are patch properties.
 pub mod patch {
     use urid::UriBound;
 
