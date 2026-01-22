@@ -129,6 +129,5 @@ pub struct TimeURIDCollection {
 
 /// Prelude of `lv2_time` for wildcard usage.
 pub mod prelude {
-    pub use crate::time::*;
     pub use crate::TimeURIDCollection;
 }

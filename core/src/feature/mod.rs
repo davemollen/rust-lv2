@@ -31,6 +31,10 @@ pub enum ThreadingClass {
 /// In Rust, most of this behaviour is done internally and instead of simply casting a pointer, a safe feature descriptor, which implements this trait, is constructed using the [`from_raw_data`](#tymethod.from_raw_data) method.
 ///
 /// Some host features may only be used in certain threading classes. This is guarded by Rust-LV2 by passing the threading class in which the plugin will be used to the feature, which then may take different actions.
+///
+/// # Safety
+///
+/// This trait has unsafe methods
 pub unsafe trait Feature: UriBound + Sized {
     /// Create an instance of the featurer.
     ///

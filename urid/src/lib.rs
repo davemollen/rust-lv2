@@ -100,7 +100,7 @@ pub type UriBuf = ::std::ffi::CString;
 /// assert_eq!("urn:urid-example:fancy-uri", FancyStruct::uri().to_str().unwrap())
 /// ```
 ///
-/// # Unsafety
+/// # Safety
 ///
 /// The [`URI`](#associatedconstant.URI) constant has to contain a null terminator (The `\0` character at the end), which is used by C programs to determine the end of the string. If you omit it, other parts of your program may violate memory access rules, which is considered undefined behaviour. Since this can not be statically checked by the compiler, this trait is unsafe to implement manually.
 pub unsafe trait UriBound {
@@ -211,7 +211,7 @@ impl<T: ?Sized> fmt::Debug for URID<T> {
 
 impl<T: ?Sized> Clone for URID<T> {
     fn clone(&self) -> Self {
-        Self(self.0, PhantomData)
+        *self
     }
 }
 

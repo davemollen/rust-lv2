@@ -233,7 +233,7 @@ impl<T: Plugin> PluginInstance<T> {
     /// part of the C interface.
     pub unsafe extern "C" fn cleanup(instance: *mut c_void) {
         let instance = instance as *mut Self;
-        Box::from_raw(instance);
+        let _ = Box::from_raw(instance);
     }
 
     /// Call `activate`.

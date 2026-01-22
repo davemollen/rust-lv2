@@ -61,7 +61,7 @@ impl Envelope {
         Self {
             attack_len,
             decay_len,
-            impulse_index: std::usize::MAX,
+            impulse_index: usize::MAX,
         }
     }
 }
@@ -89,7 +89,7 @@ impl Pipe for Envelope {
 
 impl ResetablePipe for Envelope {
     fn reset(&mut self) {
-        self.impulse_index = std::usize::MAX;
+        self.impulse_index = usize::MAX;
     }
 }
 
@@ -170,7 +170,7 @@ impl Pipe for PulseGenerator {
             self.elapsed_frames = (new_beat * self.frames_per_beat as f64) as usize;
         }
 
-        self.frames_per_beat != 0 && self.elapsed_frames % self.frames_per_beat == 0
+        self.frames_per_beat != 0 && self.elapsed_frames.is_multiple_of(self.frames_per_beat)
     }
 }
 

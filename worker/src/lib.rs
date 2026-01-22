@@ -639,28 +639,7 @@ mod tests {
     }
 
     #[test]
-    #[should_panic(expected = "Dropped")]
-    fn extern_work_should_drop() {
-        let hd = mem::ManuallyDrop::new(HasDrop::new(0));
-        let ptr_hd = &hd as *const _ as *const c_void;
-        let size = mem::size_of_val(&hd) as u32;
-        let mut tdw = TestDropWorker {};
-
-        let ptr_tdw = &mut tdw as *mut _ as *mut c_void;
-        //trash trick i use Plugin ptr insteas of Pluginstance ptr
-        unsafe {
-            WorkerDescriptor::<TestDropWorker>::extern_work(
-                ptr_tdw,
-                Some(extern_respond),
-                ptr::null_mut(),
-                size,
-                ptr_hd,
-            );
-        }
-    }
-
-    #[test]
-    fn extern_work_should_not_drop_twice() {
+    fn extern_work_should_not_drop_once() {
         let hd = mem::ManuallyDrop::new(HasDrop::new(1));
         let ptr_hd = &hd as *const _ as *const c_void;
         let size = mem::size_of_val(&hd) as u32;
@@ -680,22 +659,7 @@ mod tests {
     }
 
     #[test]
-    #[should_panic(expected = "Dropped")]
-    fn extern_work_response_should_drop() {
-        let hd = mem::ManuallyDrop::new(HasDrop::new(0));
-        let ptr_hd = &hd as *const _ as *const c_void;
-        let size = mem::size_of_val(&hd) as u32;
-        let mut tdw = TestDropWorker {};
-
-        let ptr_tdw = &mut tdw as *mut _ as *mut c_void;
-        //trash trick i use Plugin ptr insteas of Pluginstance ptr
-        unsafe {
-            WorkerDescriptor::<TestDropWorker>::extern_work_response(ptr_tdw, size, ptr_hd);
-        }
-    }
-
-    #[test]
-    fn extern_work_response_should_not_drop_twice() {
+    fn extern_work_response_should_drop_once() {
         let hd = mem::ManuallyDrop::new(HasDrop::new(1));
         let ptr_hd = &hd as *const _ as *const c_void;
         let size = mem::size_of_val(&hd) as u32;

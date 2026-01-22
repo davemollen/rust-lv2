@@ -58,7 +58,11 @@ impl<'a> Space<'a> {
         let (lower_space, upper_space) = data.split_at(size);
 
         // Apply padding.
-        let padding = if size % 8 == 0 { 0 } else { 8 - size % 8 };
+        let padding = if size.is_multiple_of(8) {
+            0
+        } else {
+            8 - (size & 7)
+        };
         let upper_space = if padding <= upper_space.len() {
             let upper_space = upper_space.split_at(padding).1;
             Some(upper_space)
@@ -242,14 +246,9 @@ impl<'a> MutSpace<'a> for RootMutSpace<'a> {
 /// Linked list element for dynamic atom writing.
 ///
 /// This struct works in conjunction with [`SpaceHead`](struct.SpaceHead.html) to provide a way to write atoms to dynamically allocated memory.
+#[derive(Default)]
 pub struct SpaceElement {
     next: Option<(Box<Self>, Box<[u8]>)>,
-}
-
-impl Default for SpaceElement {
-    fn default() -> Self {
-        Self { next: None }
-    }
 }
 
 impl SpaceElement {
@@ -274,8 +273,7 @@ impl SpaceElement {
     /// Create a vector containing the data from all elements following this one.
     pub fn to_vec(&self) -> Vec<u8> {
         self.iter()
-            .map(|slice| slice.iter())
-            .flatten()
+            .flat_map(|slice| slice.iter())
             .cloned()
             .collect()
     }

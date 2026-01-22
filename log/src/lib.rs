@@ -180,16 +180,15 @@ impl<'a> Log<'a> {
     /// Send a log message to the host.
     ///
     /// The `entry` parameter is an URID representing the kind of log message.
-    /// There are four standard kind of message:
+    /// There are four standard kinds of message:
     /// * **note:** an informative message.
     /// * **warning:** a warning message.
     /// * **error:** an error message.
     /// * **trace:** a debugging trace. These entries should not be displayed
-    ///   during normal
-    /// operation, but the host may implement an option to display them for
-    /// debugging purposes. This entry type is special in that it may be
-    /// written to in a real-time thread. It is assumed that if debug
-    /// tracing is enabled, real-time considerations are not a concern.
+    ///   during normal operation, but the host may implement an option to display
+    ///   them for debugging purposes. This entry type is special in that it may be
+    ///   written to in a real-time thread. It is assumed that if debug tracing is
+    ///   enabled, real-time considerations are not a concern.
     ///
     /// # Real-Time safety
     ///

@@ -9,16 +9,9 @@ use urid::*;
 /// This is mostly used to test this crate, but can be used to store properties too. It contains a map from property URIDs to a tuple of a type URID and a vector of bytes. You can access this map by dereferencing the storage.
 ///
 /// You can also directly create [`StoreHandle`s](struct.StoreHandle.html) and [`RetrieveHandle`s](struct.RetrieveHandle.html) that access the storage.
+#[derive(Default)]
 pub struct Storage {
     items: HashMap<URID, (URID, Vec<u8>)>,
-}
-
-impl Default for Storage {
-    fn default() -> Self {
-        Self {
-            items: HashMap::new(),
-        }
-    }
 }
 
 impl Storage {
@@ -54,7 +47,7 @@ impl Storage {
     }
 
     /// Create a `StoreHandle` that saves it's properties to this storage.
-    pub fn store_handle(&mut self) -> StoreHandle {
+    pub fn store_handle(&mut self) -> StoreHandle<'_> {
         StoreHandle::new(Some(Self::extern_store), self as *mut Self as *mut c_void)
     }
 
@@ -101,7 +94,7 @@ impl Storage {
     }
 
     /// Create a `RetrieveHandle` that retrieves the properties from this storage.
-    pub fn retrieve_handle(&mut self) -> RetrieveHandle {
+    pub fn retrieve_handle(&mut self) -> RetrieveHandle<'_> {
         RetrieveHandle::new(
             Some(Self::extern_retrieve),
             self as *mut Self as *mut c_void,
