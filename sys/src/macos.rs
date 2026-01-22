@@ -239,6 +239,10 @@ pub const LV2_EVENT__supportsTimeStamp: &'static [u8; 49usize] =
 pub const LV2_EVENT_AUDIO_STAMP: u32 = 0;
 pub const LV2_INSTANCE_ACCESS_URI: &'static [u8; 41usize] =
     b"http://lv2plug.in/ns/ext/instance-access\0";
+pub const LV2_CONTROL_INPUT_PORT_CHANGE_REQUEST_URI: &'static [u8; 61usize] =
+    b"http://kx.studio/ns/lv2ext/control-input-port-change-request\0";
+pub const LV2_CONTROL_INPUT_PORT_CHANGE_REQUEST_PREFIX: &'static [u8; 62usize] =
+    b"http://kx.studio/ns/lv2ext/control-input-port-change-request#\0";
 pub const LV2_LOG_URI: &'static [u8; 29usize] = b"http://lv2plug.in/ns/ext/log\0";
 pub const LV2_LOG_PREFIX: &'static [u8; 30usize] = b"http://lv2plug.in/ns/ext/log#\0";
 pub const LV2_LOG__Entry: &'static [u8; 35usize] = b"http://lv2plug.in/ns/ext/log#Entry\0";
@@ -1517,6 +1521,48 @@ pub struct LV2_Event_Iterator {
     pub buf: *mut LV2_Event_Buffer,
     pub offset: u32,
 }
+#[doc = "< Completed successfully."]
+pub const LV2_ControlInputPort_Change_Status_LV2_CONTROL_INPUT_PORT_CHANGE_SUCCESS:
+    LV2_ControlInputPort_Change_Status = 0;
+#[doc = "< Unknown error."]
+pub const LV2_ControlInputPort_Change_Status_LV2_CONTROL_INPUT_PORT_CHANGE_ERR_UNKNOWN:
+    LV2_ControlInputPort_Change_Status = 1;
+#[doc = "< Failed due to invalid port index."]
+pub const LV2_ControlInputPort_Change_Status_LV2_CONTROL_INPUT_PORT_CHANGE_ERR_INVALID_INDEX:
+    LV2_ControlInputPort_Change_Status = 2;
+#[doc = " A status code for LV2_CONTROL_INPUT_PORT_CHANGE_REQUEST_URI functions."]
+pub type LV2_ControlInputPort_Change_Status = u32;
+#[doc = "  Opaque handle for LV2_CONTROL_INPUT_PORT_CHANGE_REQUEST_URI feature."]
+pub type LV2_ControlInputPort_Change_Request_Handle = *mut ::std::os::raw::c_void;
+#[doc = " On instantiation, host must supply LV2_CONTROL_INPUT_PORT_CHANGE_REQUEST_URI feature."]
+#[doc = " LV2_Feature::data must be pointer to LV2_ControlInputPort_Change_Request."]
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct _LV2_ControlInputPort_Change_Request {
+    #[doc = "  Opaque host data."]
+    pub handle: LV2_ControlInputPort_Change_Request_Handle,
+    #[doc = " request_change()"]
+    #[doc = ""]
+    #[doc = " Ask the host to change a plugin's control input port value."]
+    #[doc = " Parameter handle MUST be the 'handle' member of this struct."]
+    #[doc = " Parameter index is port index to change."]
+    #[doc = " Parameter value is the requested value to change the control port input to."]
+    #[doc = ""]
+    #[doc = " Returns status of the request."]
+    #[doc = " The host may decline this request, if e.g. it is currently automating this port."]
+    #[doc = ""]
+    #[doc = " The plugin MUST call this function during run()."]
+    pub request_change: ::std::option::Option<
+        unsafe extern "C" fn(
+            handle: LV2_ControlInputPort_Change_Request_Handle,
+            index: u32,
+            value: f32,
+        ) -> LV2_ControlInputPort_Change_Status,
+    >,
+}
+#[doc = " On instantiation, host must supply LV2_CONTROL_INPUT_PORT_CHANGE_REQUEST_URI feature."]
+#[doc = " LV2_Feature::data must be pointer to LV2_ControlInputPort_Change_Request."]
+pub type LV2_ControlInputPort_Change_Request = _LV2_ControlInputPort_Change_Request;
 #[doc = "Opaque data to host data for LV2_Log_Log."]
 pub type LV2_Log_Handle = *mut ::std::os::raw::c_void;
 #[doc = "Log feature (LV2_LOG__log)"]
