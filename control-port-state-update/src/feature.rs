@@ -3,7 +3,6 @@ use lv2_core::{feature::Feature, port::PortHandle, prelude::ThreadingClass};
 use std::ffi::c_void;
 use urid::*;
 
-/// Feature that allows plugins to request control port state updates from the host.
 #[repr(transparent)]
 pub struct ControlPortStateUpdate<'a> {
     internal: &'a sys::LV2_Control_Port_State_Update,

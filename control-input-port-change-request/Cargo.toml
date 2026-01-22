@@ -1,0 +1,10 @@
+[package]
+name = "control-input-port-change-request"
+version = "0.1.0"
+authors = ["Dave Mollen <davemollen@gmail.com>"]
+edition = "2021"
+
+[dependencies]
+lv2-sys = { path = "../sys" }
+lv2-core = { path = "../core" }
+urid = { path = "../urid", default-features = false }

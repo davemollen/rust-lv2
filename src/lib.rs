@@ -136,6 +136,8 @@
 
 /// The super-prelude that contains the preludes of all enabled crates.
 pub mod prelude {
+    #[cfg(feature = "control_input_port_change_request")]
+    pub use ::control_input_port_change_request::*;
     #[cfg(feature = "control_port_state_update")]
     pub use ::control_port_state_update::*;
     #[cfg(feature = "lv2-atom")]

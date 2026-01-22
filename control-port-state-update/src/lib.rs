@@ -1,3 +1,67 @@
+//! LV2 extension for allowing plugins to update the state of their control port.
+//!
+//! # Example
+//! ```
+//! use lv2_core::prelude::*;
+//! use urid::*;
+//! use control_port_state_update::*;
+//!
+//! #[uri("http://lv2plug.in/plugins.rs/simple_amp")]
+//! struct SimpleAmp;
+//!
+//! #[derive(PortCollection)]
+//! struct Ports {
+//!   gain: InputPort<Control>,
+//!   gain_enabled: InputPort<Control>,
+//!   input: InputPort<Audio>,
+//!   output: OutputPort<Audio>,
+//! }
+//!
+//! #[derive(FeatureCollection)]
+//! struct AudioFeatures<'a> {
+//!   control_port_state_update: Option<ControlPortStateUpdate<'a>>,
+//! }
+//!
+//! impl Plugin for SimpleAmp {
+//!   type Ports = Ports;
+//!   type InitFeatures = ();
+//!   type AudioFeatures = AudioFeatures<'static>;
+//!
+//!   fn new(_plugin_info: &PluginInfo, _features: &mut Self::InitFeatures) -> Option<Self> {
+//!     Some(Self)
+//!   }
+//!
+//!   fn run(&mut self, ports: &mut Ports, features: &mut Self::AudioFeatures, _run_count: u32) {
+//!     let gain = *ports.gain;
+//!     let gain_enabled = *ports.gain_enabled == 1.;
+//!     let input = ports.input.iter();
+//!     let output = ports.output.iter_mut();
+//!
+//!     features
+//!       .control_port_state_update
+//!       .as_ref()
+//!       .map(|control_port_state_update| {
+//!         control_port_state_update
+//!           .update_state(
+//!             &ports.gain,
+//!             if gain_enabled {
+//!               ControlPortState::None
+//!             } else {
+//!               ControlPortState::Inactive
+//!             },
+//!           )
+//!           .ok();
+//!       });
+//!
+//!     for (input_sample, output_sample) in input.zip(output) {
+//!       *output_sample = *input_sample * gain;
+//!     }
+//!   }
+//! }
+//!
+//! lv2_descriptors!(SimpleAmp);
+//! ```
+
 extern crate lv2_sys as sys;
 mod feature;
 pub use feature::*;
