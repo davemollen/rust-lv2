@@ -1,8 +1,9 @@
 //! LV2 specification for patch, a protocol for accessing and manipulating properties.
 //!
-//! The original [specification](https://lv2plug.in/ns/ext/patch) contains means to access and manipulate properties with messages.
+//! See the original [specification](https://lv2plug.in/ns/ext/patch) for more information.
 //!
 //! # Example
+//! This is an example for how to read and update a parameter's value with patch messages:
 //! ```
 //! use lv2_atom::prelude::*;
 //! use lv2_core::prelude::*;
@@ -23,21 +24,21 @@
 //!   map: LV2Map<'a>,
 //! }
 //!
-//! #[uri("http://lv2plug.in/plugins.rs/patch_example#sample")]
-//! struct Sample;
+//! #[uri("http://lv2plug.in/plugins.rs/patch_example#parameter")]
+//! struct Parameter;
 //!
 //! #[derive(URIDCollection)]
 //! struct URIDs {
 //!   atom: AtomURIDCollection,
 //!   unit: UnitURIDCollection,
 //!   patch: PatchURIDCollection,
-//!   sample: URID<Sample>,
+//!   parameter: URID<Parameter>,
 //! }
 //!
 //! #[uri("http://lv2plug.in/plugins.rs/patch_example")]
 //! struct PatchExample {
 //!   urids: URIDs,
-//!   file_path: String,
+//!   parameter_value: String,
 //! }
 //!
 //! impl Plugin for PatchExample {
@@ -48,7 +49,7 @@
 //!   fn new(_plugin_info: &PluginInfo, features: &mut Self::InitFeatures) -> Option<Self> {
 //!     Some(Self {
 //!       urids: features.map.populate_collection()?,
-//!       file_path: "".to_string(),
+//!       parameter_value: "".to_string(),
 //!     })
 //!   }
 //!
@@ -91,20 +92,20 @@
 //!           .init(
 //!             self.urids.patch.property,
 //!             self.urids.atom.urid,
-//!             self.urids.sample.into_general(),
+//!             self.urids.parameter.into_general(),
 //!           )
 //!           .unwrap();
 //!         let mut path_value_writer = object_writer
 //!           .init(self.urids.patch.value, self.urids.atom.path, ())
 //!           .unwrap();
-//!         path_value_writer.append(&self.file_path).unwrap();
+//!         path_value_writer.append(&self.parameter_value).unwrap();
 //!       }
 //!
 //!       // Handle patch set events
 //!       if object_header.otype == self.urids.patch.set_class {
 //!         for (property_header, property) in object_reader {
 //!           if property_header.key == self.urids.patch.value {
-//!             self.file_path = property
+//!             self.parameter_value = property
 //!               .read(self.urids.atom.path, ())
 //!               .map(|path| path.to_string())
 //!               .unwrap();

@@ -1,4 +1,12 @@
-//! LV2 extension for allowing plugins to update the state of their control port.
+//! LV2 extension for allowing plugins to update the state of their own control ports.
+//!
+//! To use this LV2 extension you need to enable the "control_port_state_update" feature.
+//! ```toml
+//! [dependencies]
+//! lv2 = { git = "https://github.com/davemollen/rust-lv2.git", branch = "master", features = [
+//!     "control_port_state_update"
+//! ] }
+//! ```
 //!
 //! # Example
 //! ```
@@ -66,6 +74,7 @@ extern crate lv2_sys as sys;
 mod feature;
 pub use feature::*;
 
+/// Kinds of errors that may occur in the crate.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum ControlPortStateUpdateErr {
     /// Unknown error.
@@ -101,6 +110,7 @@ impl ControlPortStateUpdateErr {
     }
 }
 
+/// A control port state the plugin can report to the host.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum ControlPortState {
     /// No special state / Remove any previously set states.

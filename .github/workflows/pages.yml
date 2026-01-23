@@ -1,0 +1,92 @@
+name: Pages
+
+on:
+  push:
+    branches:
+      - master
+
+permissions:
+  pages: write
+  id-token: write
+
+jobs:
+  docs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Build
+        run: cargo doc --all-features
+      - name: Add redirect
+        run: echo '<meta http-equiv="refresh" content="0;url=lv2/index.html">' > target/doc/index.html
+      - name: Upload Rust docs artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: docs
+          path: target/doc
+
+  book:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.x"
+      - name: Install sphinx
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r docs/requirements.txt
+
+      - name: Build book
+        run: |
+          cd docs
+          make html
+          touch _build/html/.nojekyll
+
+      - name: Upload Book artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: book
+          path: docs/_build/html
+
+  assemble:
+    runs-on: ubuntu-latest
+    needs: [docs, book]
+
+    steps:
+      - uses: actions/checkout@v6
+      - name: Download docs
+        uses: actions/download-artifact@v4
+        with:
+          name: docs
+          path: docs
+
+      - name: Download book
+        uses: actions/download-artifact@v4
+        with:
+          name: book
+          path: book
+
+      - name: Assemble pages
+        run: |
+          mkdir -p pages/docs pages/book
+          cp .github/workflows/index.html pages/index.html
+          cp -r docs/* pages/docs/
+          cp -r book/* pages/book/
+
+      - name: Upload pages artifact
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: pages
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: assemble
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
