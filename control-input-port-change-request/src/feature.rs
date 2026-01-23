@@ -7,6 +7,7 @@ use lv2_core::{
 use std::ffi::c_void;
 use urid::*;
 
+/// Feature that enables plugins to request changes on their own control input ports.
 #[repr(transparent)]
 pub struct ControlInputPortChangeRequest<'a> {
     internal: &'a sys::LV2_ControlInputPort_Change_Request,

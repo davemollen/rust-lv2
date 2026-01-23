@@ -109,6 +109,9 @@ mod_license = ["mod-license/mod_license", "lv2-core/mod_license"]
 control_input_port_change_request = ["control-input-port-change-request"]
 control_port_state_update = ["control-port-state-update"]
 
+[package.metadata.docs.rs]
+all-features = true
+
 [workspace]
 members = [
     "atom",

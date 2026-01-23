@@ -3,6 +3,15 @@
 //! The original [specification](https://lv2plug.in/ns/ext/patch) contains means to access and manipulate properties with messages.
 //!
 //! # Example
+//! This parameter's atom:Path value can be read or updated with patch messages:
+//! ```
+//! <http://lv2plug.in/plugins.rs/patch_example#sample>
+//!     a lv2:Parameter ;
+//!     rdfs:label "sample" ;
+//!     rdfs:range atom:Path .
+//! ```
+//!
+//! Here's the code that reads and updates this parameter's value with patch messages:
 //! ```
 //! use lv2_atom::prelude::*;
 //! use lv2_core::prelude::*;

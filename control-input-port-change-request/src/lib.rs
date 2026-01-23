@@ -1,5 +1,13 @@
 //! LV2 extension for allowing plugins to request changes on their own control input ports.
 //!
+//! To use this LV2 extension you need to enable the "control_input_port_change_request" feature.
+//! ```toml
+//! [dependencies]
+//! lv2 = { git = "https://github.com/davemollen/rust-lv2.git", branch = "master", features = [
+//!     "control_input_port_change_request"
+//! ] }
+//! ```
+//!
 //! # Example
 //! ```
 //! use lv2_core::prelude::*;
@@ -62,6 +70,7 @@ extern crate lv2_sys as sys;
 mod feature;
 pub use feature::*;
 
+/// Kinds of errors that may occur in the crate.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum ControlInputPortChangeRequestErr {
     /// Unknown error.

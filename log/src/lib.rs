@@ -1,7 +1,7 @@
-//! Logging library allowing LV2 plugins to print log message through host.
+//! Logging library allowing LV2 plugins to print log messages through the host.
 //!
-//! This crate allow plugins to print log message through the host. Different
-//! log levels are defined by URI and passed as a lv2 URID. The core of this
+//! This crate allow plugins to print log messages through the host. Different
+//! log levels are defined by the URI and passed as a lv2 URID. The core of this
 //! crate is the [Log Feature](struct.Log.html).
 //!
 //! # Example
@@ -72,7 +72,6 @@
 //!
 //!     fn extension_data(_uri: &Uri) -> Option<&'static dyn Any> {
 //!         None
-//!         //match_extensions![uri, WorkerDescriptor<Self>]
 //!     }
 //! }
 //!
@@ -157,8 +156,7 @@ struct LogInternal {
     ) -> c_int,
 }
 
-/// Feature allowing to print log message through the host.
-///
+/// Feature allowing to print log messages through the host.
 #[repr(transparent)]
 pub struct Log<'a> {
     internal: &'a LogInternal,

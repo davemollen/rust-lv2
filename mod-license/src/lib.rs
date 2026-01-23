@@ -1,24 +1,14 @@
-//! An interface for LV2 plugins to handle licensing and copy-protection, see <http://moddevices.com/ns/ext/license> for details.
+//! An interface for LV2 plugins to handle licensing and copy-protection.
 //!
-//! To use this LV2 extension you need to link the static MOD License API library first.
-//! Make sure you have rust-lv2 as a dependency and build-dependency in your Cargo.toml and enable the "mod_license" feature on both.
+//! To use this LV2 extension you need to enable the "mod_license" feature.
 //! ```toml
 //! [dependencies]
-//! lv2 = { git = "https://github.com/davemollen/rust-lv2.git", branch = "master", features = [
-//! "mod_license"
-//! ] }
-//!
-//! [build-dependencies]
 //! lv2 = { git = "https://github.com/davemollen/rust-lv2.git", branch = "master", features = [
 //!     "mod_license"
 //! ] }
 //! ```
 //!
-//! Use this function within build.rs to link the MOD License API library:
-//! ```
-//! use mod_license::*;
-//! mod_license_api_linker::link_library();
-//! ```
+//! You also need to link the static MOD License API library. See the [`mod_license_api_linker`] docs for detailed instructions.
 //!
 //! # Example
 //! ```
