@@ -100,12 +100,45 @@ fn create_plugin(mapper: Pin<&mut HostMap<HashURIDMapper>>) -> Stateful {
     plugin
 }
 
+type ExternSave = unsafe extern "C" fn(
+    *mut std::ffi::c_void,
+    Option<
+        unsafe extern "C" fn(
+            *mut std::ffi::c_void,
+            u32,
+            *const std::ffi::c_void,
+            usize,
+            u32,
+            u32,
+        ) -> u32,
+    >,
+    *mut std::ffi::c_void,
+    u32,
+    *const *const lv2_sys::LV2_Feature,
+) -> u32;
+
+type ExternRestore = unsafe extern "C" fn(
+    *mut std::ffi::c_void,
+    Option<
+        unsafe extern "C" fn(
+            *mut std::ffi::c_void,
+            u32,
+            *mut usize,
+            *mut u32,
+            *mut u32,
+        ) -> *const std::ffi::c_void,
+    >,
+    *mut std::ffi::c_void,
+    u32,
+    *const *const lv2_sys::LV2_Feature,
+) -> u32;
+
 #[test]
 fn test_save_n_restore() {
     let mut mapper: Pin<Box<HostMap<HashURIDMapper>>> = Box::pin(HashURIDMapper::new().into());
     let mut storage = lv2_state::Storage::default();
 
-    let (store_fn, restore_fn) = unsafe {
+    let (save_fn, restore_fn) = unsafe {
         let extension_data_fn = lv2_descriptor(0).as_ref().unwrap().extension_data;
         let uri = lv2_sys::LV2_STATE__interface.as_ptr() as *const i8;
         let extension = ((extension_data_fn.unwrap())(uri) as *const lv2_sys::LV2_State_Interface)
@@ -113,8 +146,14 @@ fn test_save_n_restore() {
             .unwrap();
         (extension.save.unwrap(), extension.restore.unwrap())
     };
-    assert!(store_fn == StateDescriptor::<Stateful>::extern_save);
-    assert!(restore_fn == StateDescriptor::<Stateful>::extern_restore);
+    assert!(std::ptr::fn_addr_eq(
+        save_fn,
+        StateDescriptor::<Stateful>::extern_save as ExternSave
+    ));
+    assert!(std::ptr::fn_addr_eq(
+        restore_fn,
+        StateDescriptor::<Stateful>::extern_restore as ExternRestore
+    ));
 
     let mut first_plugin = create_plugin(mapper.as_mut());
 
@@ -124,7 +163,7 @@ fn test_save_n_restore() {
     assert_eq!(32, first_plugin.audio.len());
 
     unsafe {
-        (store_fn)(
+        (save_fn)(
             &mut first_plugin as *mut Stateful as lv2_sys::LV2_Handle,
             Some(lv2_state::Storage::extern_store),
             &mut storage as *mut lv2_state::Storage as lv2_sys::LV2_State_Handle,

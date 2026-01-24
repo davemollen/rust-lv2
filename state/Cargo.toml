@@ -1,6 +1,6 @@
 [package]
 name = "lv2-state"
-version = "2.0.0"
+version = "2.0.1"
 authors = ["Jan-Oliver 'Janonard' Opdenhövel <jan.opdenhoevel@protonmail.com>"]
 edition = "2018"
 license = "MIT OR Apache-2.0"
@@ -21,4 +21,4 @@ urid = { path = "../urid", default-features = false }
 
 [dev-dependencies]
 lv2-urid = { path = "../urid/lv2-urid" }
-mktemp = "0.4.0"
+mktemp = "0.5.1"

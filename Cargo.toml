@@ -1,10 +1,11 @@
 [package]
 name = "lv2"
-version = "0.6.1"
+version = "0.7.0"
 authors = [
     "Jan-Oliver 'Janonard' Opdenhövel <jan.opdenhoevel@protonmail.com>",
     "Adrien Prokopowicz <adrien.prokopowicz@gmail.com>",
     "Yruama_Lairba <yruama_lairba@hotmail.com>",
+    "Dave Mollen <davemollen@gmail.com>",
 ]
 edition = "2018"
 license = "MIT OR Apache-2.0"
