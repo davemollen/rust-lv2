@@ -110,12 +110,12 @@ type ExternSave = unsafe extern "C" fn(
             usize,
             u32,
             u32,
-        ) -> u32,
+        ) -> lv2_sys::LV2_State_Status,
     >,
     *mut std::ffi::c_void,
     u32,
     *const *const lv2_sys::LV2_Feature,
-) -> u32;
+) -> lv2_sys::LV2_State_Status;
 
 type ExternRestore = unsafe extern "C" fn(
     *mut std::ffi::c_void,
@@ -131,7 +131,7 @@ type ExternRestore = unsafe extern "C" fn(
     *mut std::ffi::c_void,
     u32,
     *const *const lv2_sys::LV2_Feature,
-) -> u32;
+) -> lv2_sys::LV2_State_Status;
 
 #[test]
 fn test_save_n_restore() {

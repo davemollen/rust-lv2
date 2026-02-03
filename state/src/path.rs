@@ -495,7 +495,7 @@ mod tests {
         path: *mut c_char,
     ) {
         *(free_counter as *mut u32).as_mut().unwrap() += 1;
-        CString::from_raw(path);
+        let _ = CString::from_raw(path);
     }
 
     #[test]
