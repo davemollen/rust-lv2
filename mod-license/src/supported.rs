@@ -49,31 +49,3 @@ impl ModLicenseApi {
         }
     }
 }
-
-/// Link the mod license API static library.
-///
-/// Make sure you have rust-lv2 as a build dependency in your Cargo.toml and enable the "mod_license" feature.
-/// ```toml
-/// [build-dependencies]
-/// lv2 = { git = "https://github.com/davemollen/rust-lv2.git", branch = "master", features = [
-///     "mod_license"
-/// ] }
-/// ```
-///
-/// Use this function within build.rs to link the MOD License API library on build:
-/// ```
-/// use mod_license::*;
-///
-/// fn main() {
-///     mod_license_api_linker::link_library();
-/// }
-/// ```
-pub mod mod_license_api_linker {
-    const MOD_LICENSE_MANIFEST_DIR: &str = env!("CARGO_MANIFEST_DIR");
-
-    pub fn link_library() {
-        let lib_path = format!("{}/include", MOD_LICENSE_MANIFEST_DIR);
-        println!("cargo:rustc-link-search=native={}", lib_path);
-        println!("cargo:rustc-link-lib=static=modla");
-    }
-}

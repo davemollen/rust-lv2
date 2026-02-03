@@ -1,3 +1,5 @@
+#![allow(clippy::needless_doctest_main)]
+
 //! An interface for LV2 plugins to handle licensing and copy-protection.
 //!
 //! To use this LV2 extension you need to enable the "mod_license" feature.
@@ -8,7 +10,12 @@
 //! ] }
 //! ```
 //!
-//! You also need to link the static MOD License API library. See the [`mod_license_api_linker`] docs for detailed instructions.
+//! You also need to add this `build.rs` file at the root of the lv2 project to link the static MOD License API library:
+//! ```
+//! fn main() {
+//!     println!("cargo:rustc-link-lib=static=modla");
+//! }
+//! ```
 //!
 //! # Example
 //! ```
