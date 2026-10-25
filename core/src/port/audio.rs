@@ -1,4 +1,4 @@
-use crate::port::{OutputPort, PortType};
+use crate::port::{InputPort, OutputPort, PortType};
 use std::cell::Cell;
 use std::ffi::c_void;
 use std::ptr::NonNull;
@@ -167,5 +167,19 @@ impl AudioOutputBuffer for OutputPort<Audio> {
 impl AudioOutputBuffer for OutputPort<InPlaceAudio> {
     fn as_mut_ptr(&self) -> *mut f32 {
         self.as_ptr().cast::<f32>() as *mut f32
+    }
+}
+
+pub trait AudioOutputCopyFrom<Input> {
+    fn copy_from(&self, input: &Input, sample_count: u32);
+}
+
+impl AudioOutputCopyFrom<InputPort<InPlaceAudio>> for OutputPort<InPlaceAudio> {
+    fn copy_from(&self, input: &InputPort<InPlaceAudio>, sample_count: u32) {
+        unsafe {
+            input
+                .as_ptr()
+                .copy_to(self.as_ptr().cast_mut(), sample_count as usize)
+        };
     }
 }
